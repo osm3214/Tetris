@@ -1,5 +1,6 @@
 package tetris.entity;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -33,14 +34,20 @@ public class GamePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
     public GamePanel() {
+
+        setLayout(null);
+        setBackground(Color.BLACK);
+
 		timer = new Timer(DROP_PERIOD, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				playerPanel.update();
+				update();
 			}
 		});
-        playerPanel = new PlayerPanel(timer);
-        playerPanel.setBounds(0, 0, 400, 500);
+        playerPanel = new PlayerPanel();
+        playerPanel.setBounds(5, 5, 400, 460);
+        add(playerPanel);
+
         playerPanel.reset();
 
         bgmClip = SoundPlayer.createClip(new File(BGM_FILE));
@@ -97,12 +104,10 @@ public class GamePanel extends JPanel {
 
     	    @Override
     	    public void keyTyped(KeyEvent e) {
-    			// TODO Auto-generated method stub
     	    }
 
     		@Override
     		public void keyReleased(KeyEvent e) {
-    			// TODO Auto-generated method stub
     		}
         });
 
@@ -177,5 +182,23 @@ public class GamePanel extends JPanel {
 		resetButton.setEnabled(true);
 		isPaused = !isPaused;
     	bgmClip.stop();
+    }
+
+    public void update() {
+        boolean gameover = playerPanel.update();
+        System.out.println(gameover);
+        if (gameover) {
+            gameOver();
+        }
+    }
+
+    public void gameOver() {
+        playerPanel.gameOver();
+
+		timer.stop();
+		playerPanel.setStatus("GAME OVER");
+		startButton.setEnabled(false);
+		pauseButton.setEnabled(false);
+		resetButton.setEnabled(true);
     }
 }

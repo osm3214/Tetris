@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import tetris.entity.PlayerPanel;
+import tetris.entity.GamePanel;
 
 
 public class App extends JFrame {
@@ -18,26 +18,18 @@ public class App extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private PlayerPanel panel;
+	private GamePanel panel;
 
 	private static final int PAINT_PERIOD = (int) (0.05*1000);
-	private static final int DROP_PERIOD = (int) (0.45 * 1000);
 
 	public App() {
         setTitle("TETRIS");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 400, 550);
+		setBounds(100, 100, 410, 560);
 		setBackground(Color.white);
 		setResizable(false);
 
-		Timer timer = new Timer(DROP_PERIOD, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				panel.update();
-			}
-		});
-		panel = new PlayerPanel(timer);
-		panel.setBounds(0, 0, 400, 500);
+		panel = new GamePanel();
 		setContentPane(panel);
 		panel.reset();
 	}

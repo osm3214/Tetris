@@ -1,18 +1,8 @@
 package tetris.entity;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
 
-import javax.sound.sampled.Clip;
-import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.Timer;
-
-import tetris.util.SoundPlayer;
 
 public class PlayerPanel extends JPanel {
 
@@ -24,36 +14,24 @@ public class PlayerPanel extends JPanel {
 	private Board board;
 
 	private boolean isFalling;
-	private boolean isPaused;
-	private boolean isGameStarted;
 	private int numSteps;
 	private int numLinesRemoved;
 	private int score;
 	private String status;
 
-	private Timer timer;
-
-	private Clip bgmClip;
-
 	private NextPiecePanel nextPiecePanel;
 	private StatusPanel statusPanel;
-	private JButton startButton, pauseButton, resetButton;
 
 	private static final Color BACKGROUND_COLOR = Color.lightGray;
 	private static final int NUM_COLUMNS = 10;
 	private static final int NUM_ROWS = 20;
 	private static final int BLOCK_SIZE = 20;
-	private static final int BUTTON_HEIGHT = 20;
-	private static final int BUTTON_WIDTH = 60;
-	private static final String BGM_FILE = "golden_wind.wav";
 
 	private static final long serialVersionUID = 1L;
 
-    public PlayerPanel(Timer timer) {
+    public PlayerPanel() {
     	currentPiece = new Piece();
     	nextPiece = new Piece();
-    	this.timer = timer;
-		bgmClip = SoundPlayer.createClip(new File(BGM_FILE));
 
     	setBackground(BACKGROUND_COLOR);
     	setLayout(null);
@@ -67,106 +45,17 @@ public class PlayerPanel extends JPanel {
     	add(board);
     	add(nextPiecePanel);
     	add(statusPanel);
-
-    	setFocusable(true);
-    	addKeyListener(new KeyListener() {
-    	    @Override
-    	    public void keyPressed(KeyEvent e) {
-    	    	int keycode = e.getKeyCode();
-    	    	switch (keycode) {
-    	    	case KeyEvent.VK_LEFT:
-    	    	case KeyEvent.VK_H:
-    	    		if (!isPaused) moveLeft();
-    	    		break;
-    	    	case KeyEvent.VK_RIGHT:
-    	    	case KeyEvent.VK_L:
-    	    		if (!isPaused) moveRight();
-    	    		break;
-    	    	case KeyEvent.VK_DOWN:
-    	    	case KeyEvent.VK_J:
-    	    		if (!isPaused) moveDown();
-    	    		break;
-    	    	case KeyEvent.VK_UP:
-    	    	case KeyEvent.VK_K:
-    	    		if (!isPaused) board.hardDrop();
-    	    		break;
-    	    	case KeyEvent.VK_A:
-    	    		if (!isPaused) rotateClockwise();
-    	    		break;
-    	    	case KeyEvent.VK_D:
-    	    		if (!isPaused) rotateAntiClockwise();
-    	    		break;
-    	    	case KeyEvent.VK_SPACE:
-    	    		if (isPaused || !isGameStarted) {
-    	    			start();
-    	    		} else {
-    	    			pause();
-    	    		}
-    	    		break;
-    	    	}
-    	    }
-
-    	    @Override
-    	    public void keyTyped(KeyEvent e) {
-    			// TODO Auto-generated method stub
-    	    }
-
-    		@Override
-    		public void keyReleased(KeyEvent e) {
-    			// TODO Auto-generated method stub
-    		}
-    	});
-
-    	startButton = new JButton("Start");
-    	startButton.setFocusable(false);
-    	startButton.setBounds(20, 480, BUTTON_WIDTH, BUTTON_HEIGHT);
-    	startButton.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) {
-    			start();
-    		}
-    	});
-    	pauseButton = new JButton("Pause");
-    	pauseButton.setBounds(100, 480, BUTTON_WIDTH, BUTTON_HEIGHT);
-    	pauseButton.setFocusable(false);
-    	pauseButton.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) {
-    			pause();
-    		}
-    	});
-    	resetButton = new JButton("Reset");
-    	resetButton.setBounds(180, 480, BUTTON_WIDTH, BUTTON_HEIGHT);
-    	resetButton.setFocusable(false);
-    	resetButton.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) {
-    			reset();
-    		}
-    	});
-    	add(startButton);
-    	add(pauseButton);
-    	add(resetButton);
     }
 
     public void reset() {
-    	bgmClip.stop();
-    	bgmClip.flush();
-    	bgmClip.setFramePosition(0);
-
     	isFalling = false;
-    	isPaused = false;
-    	isGameStarted = false;
 
     	board.clearBoard();
     	resetPiece();
     	resetStatus();
-    	timer.restart();
-    	timer.stop();
-
-    	startButton.setEnabled(true);
-    	pauseButton.setEnabled(false);
-    	resetButton.setEnabled(false);
     }
 
-    public void update() {
+    public boolean update() {
     	int numLinesRemoved = 0;
     	boolean gameover;
 
@@ -181,50 +70,18 @@ public class PlayerPanel extends JPanel {
     				setScore(this.score + (int)Math.pow(numLinesRemoved, 2));
     			}
     		}
+			gameover = false;
     	} else {
     		isFalling = true;
     		gameover = setNewPiece();
         	setNumSteps(numSteps + 1);
-	    	if (gameover) {
-	    		board.register();
-	    		gameOver();
-	    	}
     	}
-    }
-
-    public void start() {
-    	if (!isGameStarted) {
-    		statusPanel.blinkStatus("GAME START");
-    		isGameStarted = true;
-    	}
-    	if (isPaused) {
-    		setStatus("");
-    		isPaused = false;
-    	}
-		timer.start();
-		startButton.setEnabled(false);
-		pauseButton.setEnabled(true);
-		resetButton.setEnabled(false);
-		bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
-    }
-
-    public void pause() {
-		timer.stop();
-		setStatus("PAUSE");
-		startButton.setEnabled(true);
-		pauseButton.setEnabled(false);
-		resetButton.setEnabled(true);
-		isPaused = !isPaused;
-    	bgmClip.stop();
-    }
+		return gameover;
+   	}
 
     public void gameOver() {
+	    board.register();
 		setCurrentPieceShape(0);
-		timer.stop();
-		setStatus("GAME OVER");
-		startButton.setEnabled(false);
-		pauseButton.setEnabled(false);
-		resetButton.setEnabled(true);
     }
 
     public boolean moveDown() {
@@ -242,7 +99,7 @@ public class PlayerPanel extends JPanel {
     	return isok;
     }
 
-	public boolean hardDrop(){
+	public void hardDrop(){
 		board.hardDrop();
 	}
 
@@ -281,6 +138,7 @@ public class PlayerPanel extends JPanel {
     	gameover = board.setNewPiece(currentPiece.getShape());
     	nextPiecePanel.setNextPieceShape(nextPiece.getShape());
 
+		System.out.println(gameover);
     	return gameover;
     }
 
