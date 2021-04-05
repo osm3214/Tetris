@@ -22,14 +22,13 @@ public class Agent {
     }
 
     public void play() {
-        ArrayList<Action> nextActions = new ArrayList<Action>();
+        ArrayList<Action> nextActions;
         ArrayList<int[][]> nextStates;
         Action nextAction;
         int nextActionIdx;
 
         while (true) {
             sleep(100);
-            // System.out.println(isFalling + " " + isPaused + " " + isGameStarted);
             if (isFalling && !isPaused && isGameStarted) {
                 nextActions = searchNextActions();
                 nextStates = searchNextStates(nextActions);
@@ -50,11 +49,11 @@ public class Agent {
     }
 
     public void step(Action nextAction) {
-        sleep(250);
+        // sleep(250);
         rotate(nextAction.numRotation);
-        sleep(250);
+        // sleep(250);
         moveX(nextAction.x);
-        sleep(250);
+        // sleep(250);
         moveY();
     }
 
@@ -104,10 +103,9 @@ public class Agent {
                 p.rotate(true);
             }
 
-            while (Board.canMove(b, p, currentX, currentY)) {
+            while (Board.canMove(b, p, currentX, currentY - 1)) {
                 currentY--;
             }
-            currentY++;
 
             Board.register(b, p, currentX, currentY);
             nextStates.add(b);
@@ -118,10 +116,7 @@ public class Agent {
     }
 
     public void rotate(int numRotation) {
-        for (int i = 0; i < numRotation; i++) {
-            sleep(100);
-            panel.rotateClockwise();
-        }
+        panel.setNewPiece(numRotation);
     }
 
     public void moveX(int goal) {
@@ -139,7 +134,8 @@ public class Agent {
                     break;
                 }
             }
-            sleep(100);
+
+            // sleep(100);
         }
     }
 

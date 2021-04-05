@@ -177,6 +177,17 @@ public class Board extends JPanel {
 		}
 	}
 
+	public static void binarize(int[][] b) {
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				if (b[y][x] > 0) {
+					b[y][x] = 1;
+				} else {
+					b[y][x] = 0;
+				}
+			}
+		}
+	}
 
     public void clearBoard() {
     	for (int y = 0; y < NUM_ROWS; y++) {
@@ -229,6 +240,34 @@ public class Board extends JPanel {
     	return false;
     }
 
+	public static void flip(int[][] b) {
+		for (int y = 0; y < NUM_ROWS / 2; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				int temp = b[y][x];
+				b[y][x] = b[NUM_ROWS - y - 1][x];
+				b[NUM_ROWS - y - 1][x] = temp;
+			}
+		}
+	}
+
+	public static void printBoard(int[][] b) {
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				System.out.print(b[y][x] + " ");
+			}
+			System.out.println();
+		}
+	}
+
+	public static float[][] toFloat(int[][] b) {
+		float[][] res = new float[NUM_ROWS][NUM_COLS];
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				res[y][x] = (float) b[y][x];
+			}
+		}
+		return res;
+	}
 
     public boolean setNewPiece() {
     	boolean gameover = false;
@@ -263,6 +302,26 @@ public class Board extends JPanel {
     	setShadow();
     	return gameover;
     }
+
+	public boolean setNewPiece(int shape, int numRotation) {
+		boolean gameover = false;
+		currentPiece.setShape(shape);
+		for (int i = 0; i < numRotation; i++) {
+			currentPiece.rotate(true);
+		}
+		currentX = NUM_COLS / 2 - 1;
+		currentY = NUM_ROWS - 1 - currentPiece.getMaxY() + 2;
+		for (int i = 0; i < 2; i++) {
+			if (isCollided(currentX, currentY - 1)) {
+				gameover = true;
+				break;
+			} else {
+				currentY--;
+			}
+		}
+		setShadow();
+		return gameover;
+	}
 
 	public int getCurrentX() {
 		return currentX;

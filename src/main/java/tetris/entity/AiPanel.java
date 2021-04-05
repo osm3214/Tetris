@@ -139,6 +139,10 @@ public class AiPanel extends JPanel {
         return gameover;
     }
 
+    public boolean setNewPiece(int numRotation) {
+        return board.setNewPiece(currentPiece.getShape(), numRotation);
+    }
+
     public Piece getCurrentPiece() {
         return currentPiece;
     }

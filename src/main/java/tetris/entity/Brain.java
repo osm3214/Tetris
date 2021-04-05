@@ -1,6 +1,5 @@
 package tetris.entity;
 
-import java.util.Random;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -8,53 +7,72 @@ import java.util.ArrayList;
 import ai.djl.*;
 import ai.djl.inference.*;
 import ai.djl.ndarray.*;
+import ai.djl.ndarray.index.NDIndex;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.*;
 
 public class Brain {
 
-    private Model model;
-    Translator<int[][], Float> translator;
-    Predictor<int[][], Float> predictor;
+    private Predictor<int[][], Float> predictor;
+
+    private static final int NUM_ROWS = 20;
+    private static final int NUM_COLS = 10;
+    private static final String modelDirName = "resources/models";
+    private static final String modelName = "tetrisnet";
 
     public Brain() {
-        Path modelDir = Paths.get("resources/models/");
-
-        model = Model.newInstance("tetrisnet");
+        Model model = Model.newInstance(modelName);
         try {
-            model.load(modelDir);
+            model.load(Paths.get(modelDirName));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        translator = new Translator<int[][], Float>(){
+        predictor = model.newPredictor(new Translator<int[][], Float>() {
             @Override
             public NDList processInput(TranslatorContext ctx, int[][] input) {
-                NDManager manager = ctx.getNDManager();
-                NDArray array = manager.create(input);
+                NDArray array = ctx.getNDManager().ones(new Shape(1, NUM_ROWS, NUM_COLS));
+                for (int y = 0; y < 20; y++) {
+                    for (int x = 0; x < 10; x++) {
+                        array.set(new NDIndex(0, y, x), (float) input[y][x]);
+                    }
+                }
                 return new NDList(array);
             }
 
             @Override
             public Float processOutput(TranslatorContext ctx, NDList list) {
-                NDArray temp_arr = list.get(0);
-                return temp_arr.getFloat();
+                return list.get(0).getFloat();
             }
 
             @Override
             public Batchifier getBatchifier() {
-                // The Batchifier describes how to combine a batch together
-                // Stacking, the most common batchifier, takes N [X1, X2, ...] arrays to a single [N, X1, X2, ...] array
                 return Batchifier.STACK;
             }
-        };
-
-        predictor = model.newPredictor(translator);
+        });
     }
 
     public int selectAction(ArrayList<int[][]> nextStates) {
-        Random r = new Random();
-        int idx = r.nextInt(nextStates.size());
+        float maxScore = -100;
+        int maxIdx = 0;
 
-        return idx;
+        for (int i = 0; i < nextStates.size(); i++) {
+            float score = 0;
+            int[][] nextState = nextStates.get(i);
+
+            Board.flip(nextState);
+            Board.binarize(nextState);
+
+            try {
+                score = predictor.predict(nextState);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (score > maxScore) {
+                maxScore = score;
+                maxIdx = i;
+            }
+        }
+        return maxIdx;
     }
 }
