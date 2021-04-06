@@ -1,6 +1,5 @@
 package tetris.entity;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -32,8 +31,8 @@ public class Brain {
             @Override
             public NDList processInput(TranslatorContext ctx, int[][] input) {
                 NDArray array = ctx.getNDManager().ones(new Shape(1, NUM_ROWS, NUM_COLS));
-                for (int y = 0; y < 20; y++) {
-                    for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < NUM_ROWS; y++) {
+                    for (int x = 0; x < NUM_COLS; x++) {
                         array.set(new NDIndex(0, y, x), (float) input[y][x]);
                     }
                 }

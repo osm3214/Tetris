@@ -28,6 +28,9 @@ public class Piece {
 		new Color(255,238,88), // yellow
 		new Color(171,71,188) // purple
 	};
+	private static final int NUM_SHAPE_KINDS[] = {
+		1, 2, 2, 2, 4, 1, 4, 4
+	};
 
 	public Piece() {
 		coordinate = new int[4][2];
@@ -135,5 +138,9 @@ public class Piece {
 
 	public static Color getColorByShape(int shape) {
 		return COLORS[shape];
+	}
+
+	public int getNumShapeKind() {
+		return NUM_SHAPE_KINDS[shape];
 	}
 }

@@ -49,35 +49,22 @@ public class Agent {
     }
 
     public void step(Action nextAction) {
-        // sleep(250);
         rotate(nextAction.numRotation);
-        // sleep(250);
         moveX(nextAction.x);
-        // sleep(250);
         moveY();
     }
 
     public ArrayList<Action> searchNextActions() {
         ArrayList<Action> nextActions = new ArrayList<Action>();
         Piece piece = new Piece(panel.getCurrentPiece().getShape());
-        int currentShape, numRotations;
 
-        currentShape = piece.getShape();
-        if (piece.getShape() == 5) {
-            numRotations = 1;
-        } else if (currentShape == 1 || currentShape == 2 || currentShape == 3) {
-            numRotations = 2;
-        } else {
-            numRotations = 4;
-        }
-
-        for (int numRotation = 0; numRotation < numRotations; numRotation++) {
+        for (int numRotation = 0; numRotation < piece.getNumShapeKind(); numRotation++) {
             for (int x = -piece.getMinX(); x < NUM_COLS - piece.getMaxX(); x++) {
-                int[][] b = panel.getBoard().createCopy();
+                int[][] board = panel.getBoard().createCopy();
                 int currentX = x;
                 int currentY = NUM_ROWS - piece.getMaxY() - 1;
 
-                if (!Board.canMove(b, piece, currentX, currentY)) {
+                if (!Board.canMove(board, piece, currentX, currentY)) {
 	    			System.out.println("Cannot move to the point where a block is already placed.");
                     continue;
                 }
@@ -91,24 +78,24 @@ public class Agent {
 
     public ArrayList<int[][]> searchNextStates(ArrayList<Action> nextActions) {
         ArrayList<int[][]> nextStates = new ArrayList<int[][]>();
-        Piece p = new Piece(panel.getCurrentPiece().getShape());
+        Piece piece = new Piece(panel.getCurrentPiece().getShape());
         int lastNumRoatation = 0;
 
         for (Action action: nextActions) {
-            int[][] b = panel.getBoard().createCopy();
+            int[][] board = panel.getBoard().createCopy();
             int currentX = action.x;
-            int currentY = NUM_ROWS - p.getMaxY();
+            int currentY = NUM_ROWS - piece.getMaxY();
 
             if (action.numRotation != lastNumRoatation) {
-                p.rotate(true);
+                piece.rotate(true);
             }
 
-            while (Board.canMove(b, p, currentX, currentY - 1)) {
+            while (Board.canMove(board, piece, currentX, currentY - 1)) {
                 currentY--;
             }
 
-            Board.register(b, p, currentX, currentY);
-            nextStates.add(b);
+            Board.register(board, piece, currentX, currentY);
+            nextStates.add(board);
             lastNumRoatation = action.numRotation;
         }
 
