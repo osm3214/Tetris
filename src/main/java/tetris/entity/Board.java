@@ -3,6 +3,7 @@ package tetris.entity;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -175,6 +176,34 @@ public class Board extends JPanel {
 			}
 			b[y][x] = shape;
 		}
+	}
+
+	public boolean stackGarbageBlock(int numLines) {
+		boolean gameover = false;
+
+		for (int x = 0; x < NUM_COLS; x++) {
+			if (board[NUM_ROWS - numLines][x] != 0) {
+				gameover = true;
+			}
+		}
+		for (int y = NUM_ROWS - 1; y >= numLines; y--) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				board[y][x] = board[y - numLines][x];
+			}
+		}
+		for (int y = numLines - 1; y >= 0; y--) {
+			Random r = new Random();
+			int holeIdx = r.nextInt(NUM_COLS);
+			for (int x = 0; x < NUM_COLS; x++) {
+				if (x == holeIdx) {
+					board[y][x] = 0;
+				} else {
+					board[y][x] = 1;
+				}
+			}
+		}
+
+		return gameover;
 	}
 
 	public static void binarize(int[][] b) {

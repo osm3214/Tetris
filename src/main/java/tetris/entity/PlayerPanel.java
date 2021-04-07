@@ -55,7 +55,7 @@ public class PlayerPanel extends JPanel {
     	resetStatus();
     }
 
-    public boolean update() {
+    public int update() {
     	int numLinesRemoved = 0;
     	boolean gameover;
 
@@ -76,7 +76,13 @@ public class PlayerPanel extends JPanel {
     		gameover = setNewPiece();
         	setNumSteps(numSteps + 1);
     	}
-		return gameover;
+
+		if (gameover) {
+			numLinesRemoved = -1;
+		}
+        System.out.println("player: " + numLinesRemoved);
+
+		return numLinesRemoved;
    	}
 
     public void gameOver() {
@@ -104,7 +110,6 @@ public class PlayerPanel extends JPanel {
 
 	public void hardDrop(){
 		board.hardDrop();
-		update();
 	}
 
     public boolean rotateClockwise() {
@@ -128,6 +133,10 @@ public class PlayerPanel extends JPanel {
     	setScore(0);
     	setStatus("STAND BY");
     }
+
+	public boolean stackGarbageBlock(int numLines) {
+		return board.stackGarbageBlock(numLines);
+	}
 
     public boolean setNewPiece() {
     	boolean gameover;

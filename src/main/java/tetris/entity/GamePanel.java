@@ -54,6 +54,7 @@ public class GamePanel extends JPanel {
         add(aiPanel);
 
 		agent = new Agent(aiPanel);
+		aiPanel.setAgent(agent);
 
 		timer = new Timer(DROP_PERIOD, new ActionListener() {
 			@Override
@@ -151,13 +152,13 @@ public class GamePanel extends JPanel {
     	add(pauseButton);
     	add(resetButton);
 
-		thread = new Thread(new Runnable(){
-			@Override
-			public void run() {
-				agent.play();
-			}
-		});
-		thread.start();
+		// thread = new Thread(new Runnable(){
+		// 	@Override
+		// 	public void run() {
+		// 		agent.play();
+		// 	}
+		// });
+		// thread.start();
     }
 
     public void reset() {
@@ -210,9 +211,31 @@ public class GamePanel extends JPanel {
     }
 
     public void update() {
-        boolean isPlayerGameOver, isAiGameOver;
-        isPlayerGameOver = playerPanel.update();
-        isAiGameOver = aiPanel.update();
+        boolean isPlayerGameOver = false, isAiGameOver = false;
+		int numPlayerRemovedLines, numAiRemovedLines;
+
+        numPlayerRemovedLines = playerPanel.update();
+		System.out.println("player after update" + numPlayerRemovedLines);
+        numAiRemovedLines = aiPanel.update();
+
+		if (numPlayerRemovedLines == -1) {
+			isPlayerGameOver = true;
+		}
+		if (numAiRemovedLines == -1) {
+			isAiGameOver = true;
+		}
+        if (isPlayerGameOver || isAiGameOver) {
+            gameOver(isPlayerGameOver, isAiGameOver);
+        }
+		System.out.println(numPlayerRemovedLines + " " + numAiRemovedLines);
+
+		if (numPlayerRemovedLines > 0) {
+			isAiGameOver = aiPanel.stackGarbageBlock(numPlayerRemovedLines);
+		}
+		if (numAiRemovedLines > 0) {
+			isPlayerGameOver = playerPanel.stackGarbageBlock(numAiRemovedLines);
+		}
+
         if (isPlayerGameOver || isAiGameOver) {
             gameOver(isPlayerGameOver, isAiGameOver);
         }

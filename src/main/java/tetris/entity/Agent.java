@@ -27,25 +27,21 @@ public class Agent {
         Action nextAction;
         int nextActionIdx;
 
-        while (true) {
-            sleep(100);
-            if (isFalling && !isPaused && isGameStarted) {
+        // while (true) {
+        //     sleep(500);
+        // System.out.println(isFalling + " " + isPaused + " " + isGameStarted);
+        //     if (isFalling && !isPaused && isGameStarted) {
                 nextActions = searchNextActions();
                 nextStates = searchNextStates(nextActions);
-                System.out.println(nextActions);
-                System.out.println(nextActions.size());
-                System.out.println(nextStates.size());
 
                 nextActionIdx = brain.selectAction(nextStates);
                 nextAction = nextActions.get(nextActionIdx);
-                System.out.println(nextAction);
 
                 step(nextAction);
-                isFalling = false;
-                panel.update();
-            }
-            isFalling = panel.getIsFalling();
-        }
+                // isFalling = false;
+            // }
+            // isFalling = panel.getIsFalling();
+        // }
     }
 
     public void step(Action nextAction) {

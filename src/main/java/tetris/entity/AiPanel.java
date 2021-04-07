@@ -16,6 +16,7 @@ public class AiPanel extends JPanel {
     private int score;
     private String status;
 
+    private Agent agent;
     private NextPiecePanel nextPiecePanel;
     private StatusPanel statusPanel;
 
@@ -40,6 +41,7 @@ public class AiPanel extends JPanel {
         nextPiecePanel.setBounds(260, 20, 120, 120);
         statusPanel = new StatusPanel();
         statusPanel.setBounds(260, 180, 120, 240);
+
         add(board);
         add(nextPiecePanel);
         add(statusPanel);
@@ -53,11 +55,12 @@ public class AiPanel extends JPanel {
         resetStatus();
     }
 
-    public boolean update() {
+    public int update() {
         int numLinesRemoved = 0;
         boolean gameover;
 
         if (isFalling) {
+            agent.play();
             if (!moveDown()) {
                 isFalling = false;
                 board.register();
@@ -70,11 +73,16 @@ public class AiPanel extends JPanel {
             }
             gameover = false;
         } else {
-            isFalling = true;
             gameover = setNewPiece();
             setNumSteps(numSteps + 1);
+            isFalling = true;
         }
-        return gameover;
+
+        if (gameover) {
+            numLinesRemoved = -1;
+        }
+        System.out.println("ai: " + numLinesRemoved);
+        return numLinesRemoved;
     }
 
     public void gameOver() {
@@ -122,6 +130,10 @@ public class AiPanel extends JPanel {
         setScore(0);
         setStatus("STAND BY");
     }
+
+	public boolean stackGarbageBlock(int numLines) {
+		return board.stackGarbageBlock(numLines);
+	}
 
     public boolean setNewPiece() {
         boolean gameover;
@@ -191,5 +203,9 @@ public class AiPanel extends JPanel {
 
     public void blinkStatus(String status) {
         statusPanel.blinkStatus(status);
+    }
+
+    public void setAgent(Agent a) {
+        agent = a;
     }
 }
