@@ -1,5 +1,6 @@
 package tetris.entity;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,6 +17,10 @@ import tetris.util.SoundPlayer;
 public class GamePanel extends JPanel {
 
     private PlayerPanel playerPanel;
+    private AiPanel aiPanel;
+
+	private Agent agent;
+	private Thread thread;
 
     private boolean isPaused;
     private boolean isGameStarted;
@@ -26,22 +31,37 @@ public class GamePanel extends JPanel {
     private Clip bgmClip;
 
     private static final int DROP_PERIOD = (int) (0.45 * 1000);
+    private static final int PLAYERPANEL_HEIGHT = 460;
+    private static final int PLAYERPANEL_WIDTH = 400;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int BUTTON_WIDTH = 60;
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
 	private static final String BGM_FILE = "resources/golden_wind.wav";
 
 	private static final long serialVersionUID = 1L;
 
     public GamePanel() {
+
+        setLayout(null);
+        setBackground(BACKGROUND_COLOR);
+
+        playerPanel = new PlayerPanel();
+        playerPanel.setBounds(5, 5, PLAYERPANEL_WIDTH, PLAYERPANEL_HEIGHT);
+        add(playerPanel);
+
+        aiPanel = new AiPanel();
+        aiPanel.setBounds(410, 5, PLAYERPANEL_WIDTH, PLAYERPANEL_HEIGHT);
+        add(aiPanel);
+
+		agent = new Agent(aiPanel);
+		aiPanel.setAgent(agent);
+
 		timer = new Timer(DROP_PERIOD, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				playerPanel.update();
+				update();
 			}
 		});
-        playerPanel = new PlayerPanel(timer);
-        playerPanel.setBounds(0, 0, 400, 500);
-        playerPanel.reset();
 
         bgmClip = SoundPlayer.createClip(new File(BGM_FILE));
 
@@ -97,12 +117,10 @@ public class GamePanel extends JPanel {
 
     	    @Override
     	    public void keyTyped(KeyEvent e) {
-    			// TODO Auto-generated method stub
     	    }
 
     		@Override
     		public void keyReleased(KeyEvent e) {
-    			// TODO Auto-generated method stub
     		}
         });
 
@@ -133,6 +151,14 @@ public class GamePanel extends JPanel {
     	add(startButton);
     	add(pauseButton);
     	add(resetButton);
+
+		// thread = new Thread(new Runnable(){
+		// 	@Override
+		// 	public void run() {
+		// 		agent.play();
+		// 	}
+		// });
+		// thread.start();
     }
 
     public void reset() {
@@ -140,10 +166,11 @@ public class GamePanel extends JPanel {
     	bgmClip.flush();
     	bgmClip.setFramePosition(0);
 
-    	isPaused = false;
-    	isGameStarted = false;
+    	setIsPaused(false);
+    	setIsGameStarted(false);
 
         playerPanel.reset();
+        aiPanel.reset();
 
     	timer.restart();
     	timer.stop();
@@ -156,13 +183,16 @@ public class GamePanel extends JPanel {
     public void start() {
     	if (!isGameStarted) {
     		playerPanel.blinkStatus("GAME START");
-    		isGameStarted = true;
+            aiPanel.blinkStatus("GAME START");
+    		setIsGameStarted(true);
     	}
     	if (isPaused) {
     		playerPanel.setStatus("");
-    		isPaused = false;
+            aiPanel.setStatus("");
+    		setIsPaused(false);
     	}
 		timer.start();
+
 		startButton.setEnabled(false);
 		pauseButton.setEnabled(true);
 		resetButton.setEnabled(false);
@@ -172,10 +202,67 @@ public class GamePanel extends JPanel {
     public void pause() {
 		timer.stop();
 		playerPanel.setStatus("PAUSE");
+        aiPanel.setStatus("Pause");
 		startButton.setEnabled(true);
 		pauseButton.setEnabled(false);
 		resetButton.setEnabled(true);
-		isPaused = !isPaused;
+		setIsPaused(true);
     	bgmClip.stop();
     }
+
+    public void update() {
+        boolean isPlayerGameOver = false, isAiGameOver = false;
+		int numPlayerRemovedLines, numAiRemovedLines;
+
+        numPlayerRemovedLines = playerPanel.update();
+        numAiRemovedLines = aiPanel.update();
+
+		if (numPlayerRemovedLines == -1) {
+			isPlayerGameOver = true;
+		}
+		if (numAiRemovedLines == -1) {
+			isAiGameOver = true;
+		}
+        if (isPlayerGameOver || isAiGameOver) {
+            gameOver(isPlayerGameOver, isAiGameOver);
+        } else {
+			if (numPlayerRemovedLines > 0) {
+				isAiGameOver = aiPanel.stackGarbageBlock(numPlayerRemovedLines);
+			}
+			if (numAiRemovedLines > 0) {
+				isPlayerGameOver = playerPanel.stackGarbageBlock(numAiRemovedLines);
+			}
+			if (isPlayerGameOver || isAiGameOver) {
+				gameOver(isPlayerGameOver, isAiGameOver);
+			}
+		}
+    }
+
+    public void gameOver(boolean isPlayerGameOver, boolean isAiGameOver) {
+        playerPanel.gameOver();
+        aiPanel.gameOver();
+
+		timer.stop();
+        if (isPlayerGameOver) {
+		    playerPanel.setStatus("GAME OVER");
+            aiPanel.setStatus("YOU WIN!");
+        } else {
+            playerPanel.setStatus("YOU WIN!");
+            aiPanel.setStatus("GAME OVER");
+        }
+
+		startButton.setEnabled(false);
+		pauseButton.setEnabled(false);
+		resetButton.setEnabled(true);
+    }
+
+	public void setIsGameStarted(boolean isGameStarted) {
+		this.isGameStarted = isGameStarted;
+		agent.setIsGameStarted(isGameStarted);
+	}
+
+	public void setIsPaused(boolean isPaused) {
+		this.isPaused = isPaused;
+		agent.setIsPaused(isPaused);
+	}
 }
