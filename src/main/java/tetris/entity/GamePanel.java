@@ -152,13 +152,13 @@ public class GamePanel extends JPanel {
     	add(pauseButton);
     	add(resetButton);
 
-		// thread = new Thread(new Runnable(){
-		// 	@Override
-		// 	public void run() {
-		// 		agent.play();
-		// 	}
-		// });
-		// thread.start();
+		thread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				agent.play();
+			}
+		});
+		thread.start();
     }
 
     public void reset() {

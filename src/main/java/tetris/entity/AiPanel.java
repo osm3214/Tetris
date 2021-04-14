@@ -48,7 +48,7 @@ public class AiPanel extends JPanel {
     }
 
     public void reset() {
-        isFalling = false;
+        setIsFalling(false);
 
         board.clearBoard();
         resetPiece();
@@ -60,9 +60,9 @@ public class AiPanel extends JPanel {
         boolean gameover;
 
         if (isFalling) {
-            agent.play();
+            // agent.play();
             if (!moveDown()) {
-                isFalling = false;
+                setIsFalling(false);
                 board.register();
                 numLinesRemoved = board.removeLines();
                 if (numLinesRemoved > 0) {
@@ -75,7 +75,7 @@ public class AiPanel extends JPanel {
         } else {
             gameover = setNewPiece();
             setNumSteps(numSteps + 1);
-            isFalling = true;
+            setIsFalling(true);
         }
 
         if (gameover) {
@@ -178,6 +178,7 @@ public class AiPanel extends JPanel {
 
     public void setIsFalling(boolean isFalling) {
         this.isFalling = isFalling;
+        agent.setIsFalling(isFalling);
     }
 
     public void setNumSteps(int numSteps) {

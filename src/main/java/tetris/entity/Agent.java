@@ -27,10 +27,9 @@ public class Agent {
         Action nextAction;
         int nextActionIdx;
 
-        // while (true) {
-        //     sleep(500);
-        // System.out.println(isFalling + " " + isPaused + " " + isGameStarted);
-        //     if (isFalling && !isPaused && isGameStarted) {
+        while (true) {
+            sleep(200);
+            if (isFalling && !isPaused && isGameStarted) {
                 nextActions = searchNextActions();
                 nextStates = searchNextStates(nextActions);
 
@@ -38,15 +37,16 @@ public class Agent {
                 nextAction = nextActions.get(nextActionIdx);
 
                 step(nextAction);
-                // isFalling = false;
-            // }
-            // isFalling = panel.getIsFalling();
-        // }
+                isFalling = false;
+            }
+        }
     }
 
     public void step(Action nextAction) {
         rotate(nextAction.numRotation);
+        sleep(75);
         moveX(nextAction.x);
+        sleep(75);
         moveY();
     }
 
@@ -118,7 +118,7 @@ public class Agent {
                 }
             }
 
-            // sleep(100);
+            sleep(50);
         }
     }
 
@@ -140,5 +140,9 @@ public class Agent {
 
     public void setIsPaused(boolean isPaused) {
         this.isPaused = isPaused;
+    }
+
+    public void setIsFalling(boolean isFalling) {
+        this.isFalling = isFalling;
     }
 }
