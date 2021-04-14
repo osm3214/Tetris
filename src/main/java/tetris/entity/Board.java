@@ -192,16 +192,16 @@ public class Board extends JPanel {
 			}
 		}
 		for (int y = numLines - 1; y >= 0; y--) {
-			Random r = new Random();
-			int holeIdx = r.nextInt(NUM_COLS);
+			int holeIdx = new Random().nextInt(NUM_COLS);
 			for (int x = 0; x < NUM_COLS; x++) {
-				if (x == holeIdx) {
-					board[y][x] = 0;
-				} else {
+				if (x != holeIdx) {
 					board[y][x] = 1;
+				} else {
+					board[y][x] = 0;
 				}
-			}
+ 			}
 		}
+		setShadow();
 
 		return gameover;
 	}

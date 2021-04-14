@@ -6,9 +6,6 @@ import javax.swing.JPanel;
 
 public class PlayerPanel extends JPanel {
 
-	/**
-	 *
-	 */
 	private Piece currentPiece;
 	private Piece nextPiece;
 	private Board board;
@@ -80,7 +77,6 @@ public class PlayerPanel extends JPanel {
 		if (gameover) {
 			numLinesRemoved = -1;
 		}
-        System.out.println("player: " + numLinesRemoved);
 
 		return numLinesRemoved;
    	}

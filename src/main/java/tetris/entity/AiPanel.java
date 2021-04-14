@@ -81,7 +81,6 @@ public class AiPanel extends JPanel {
         if (gameover) {
             numLinesRemoved = -1;
         }
-        System.out.println("ai: " + numLinesRemoved);
         return numLinesRemoved;
     }
 

@@ -215,7 +215,6 @@ public class GamePanel extends JPanel {
 		int numPlayerRemovedLines, numAiRemovedLines;
 
         numPlayerRemovedLines = playerPanel.update();
-		System.out.println("player after update" + numPlayerRemovedLines);
         numAiRemovedLines = aiPanel.update();
 
 		if (numPlayerRemovedLines == -1) {
@@ -226,19 +225,17 @@ public class GamePanel extends JPanel {
 		}
         if (isPlayerGameOver || isAiGameOver) {
             gameOver(isPlayerGameOver, isAiGameOver);
-        }
-		System.out.println(numPlayerRemovedLines + " " + numAiRemovedLines);
-
-		if (numPlayerRemovedLines > 0) {
-			isAiGameOver = aiPanel.stackGarbageBlock(numPlayerRemovedLines);
+        } else {
+			if (numPlayerRemovedLines > 0) {
+				isAiGameOver = aiPanel.stackGarbageBlock(numPlayerRemovedLines);
+			}
+			if (numAiRemovedLines > 0) {
+				isPlayerGameOver = playerPanel.stackGarbageBlock(numAiRemovedLines);
+			}
+			if (isPlayerGameOver || isAiGameOver) {
+				gameOver(isPlayerGameOver, isAiGameOver);
+			}
 		}
-		if (numAiRemovedLines > 0) {
-			isPlayerGameOver = playerPanel.stackGarbageBlock(numAiRemovedLines);
-		}
-
-        if (isPlayerGameOver || isAiGameOver) {
-            gameOver(isPlayerGameOver, isAiGameOver);
-        }
     }
 
     public void gameOver(boolean isPlayerGameOver, boolean isAiGameOver) {
