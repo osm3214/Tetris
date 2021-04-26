@@ -9,8 +9,8 @@ import java.io.File;
 
 import javax.sound.sampled.Clip;
 import javax.swing.JButton;
-import javax.swing.Timer;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import tetris.util.SoundPlayer;
 
@@ -36,7 +36,7 @@ public class GamePanel extends JPanel {
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int BUTTON_WIDTH = 60;
     private static final Color BACKGROUND_COLOR = Color.BLACK;
-	private static final String BGM_FILE = "resources/golden_wind.wav";
+	private static final String BGM_FILE = "resources/bgm.wav";
 
 	private static final long serialVersionUID = 1L;
 

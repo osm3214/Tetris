@@ -25,16 +25,16 @@ public class Board extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-    public Board() {
+	public Board() {
 		board = new int[NUM_ROWS][NUM_COLS];
-    	currentPiece = new Piece();
+		currentPiece = new Piece();
 
-    	setBackground(BACKGROUND_COLOR);
-    	setLayout(null);
-    }
+		setBackground(BACKGROUND_COLOR);
+		setLayout(null);
+	}
 
-   public boolean canMove(int nextX, int nextY) {
-	   	for (int i = 0; i < 4; i++) {
+	public boolean canMove(int nextX, int nextY) {
+		for (int i = 0; i < 4; i++) {
 			int x = nextX + currentPiece.getXById(i);
 			int y = nextY + currentPiece.getYById(i);
 
@@ -46,11 +46,11 @@ public class Board extends JPanel {
 				return false;
 			}
 		}
-	   	return true;
-   }
+		return true;
+	}
 
-   public static boolean canMove(int[][] b, Piece p, int nextX, int nextY) {
-	for (int i = 0; i < 4; i++) {
+	public static boolean canMove(int[][] b, Piece p, int nextX, int nextY) {
+		for (int i = 0; i < 4; i++) {
 			int x = nextX + p.getXById(i);
 			int y = nextY + p.getYById(i);
 
@@ -62,108 +62,104 @@ public class Board extends JPanel {
 				return false;
 			}
 		}
-	   	return true;
+		return true;
 	}
 
-    public boolean moveTo(int nextX, int nextY) {
-    	for (int i = 0; i < 4; i++) {
-    		int x = nextX + currentPiece.getXById(i);
-    		int y = nextY + currentPiece.getYById(i);
+	public boolean moveTo(int nextX, int nextY) {
+		for (int i = 0; i < 4; i++) {
+			int x = nextX + currentPiece.getXById(i);
+			int y = nextY + currentPiece.getYById(i);
 
-    		if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
-    			return false;
-    		}
+			if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
+				return false;
+			}
 
-    		if (board[y][x] != 0) {
-    			return false;
-    		}
-    	}
-    	currentX = nextX;
-    	currentY = nextY;
+			if (board[y][x] != 0) {
+				return false;
+			}
+		}
+		currentX = nextX;
+		currentY = nextY;
 
-    	return true;
-    }
+		return true;
+	}
 
-    public void hardDrop() {
-    	while (moveDown()) ;
-    }
+	public void hardDrop() {
+		while (moveDown())
+			;
+	}
 
-    public void setShadow() {
-    	shadowX = currentX;
-    	shadowY = currentY;
-    	while (canMove(shadowX, shadowY - 1)) {
-    		shadowY--;
-    	}
-    }
+	public void setShadow() {
+		shadowX = currentX;
+		shadowY = currentY;
+		while (canMove(shadowX, shadowY - 1)) {
+			shadowY--;
+		}
+	}
 
+	public boolean moveDown() {
+		boolean isok = moveTo(currentX, currentY - 1);
+		return isok;
+	}
 
-    public boolean moveDown() {
-    	boolean isok = moveTo(currentX, currentY - 1);
-    	return isok;
-    }
+	public boolean moveLeft() {
+		boolean isok = moveTo(currentX - 1, currentY);
+		setShadow();
+		return isok;
+	}
 
+	public boolean moveRight() {
+		boolean isok = moveTo(currentX + 1, currentY);
+		setShadow();
+		return isok;
+	}
 
-    public boolean moveLeft() {
-    	boolean isok = moveTo(currentX - 1, currentY);
-    	setShadow();
-    	return isok;
-    }
+	public boolean rotate(boolean clockwise) {
+		if (currentPiece.getShape() == 0 || currentPiece.getShape() == 5) {
+			return true;
+		}
+		for (int i = 0; i < 4; i++) {
+			int x = currentX + (clockwise ? currentPiece.getYById(i) : -currentPiece.getYById(i));
+			int y = currentY + (clockwise ? -currentPiece.getXById(i) : currentPiece.getXById(i));
 
+			if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
+				return false;
+			}
 
-    public boolean moveRight() {
-    	boolean isok = moveTo(currentX + 1, currentY);
-    	setShadow();
-    	return isok;
-    }
+			if (board[y][x] != 0) {
+				return false;
+			}
+		}
+		currentPiece.rotate(clockwise);
 
+		return true;
+	}
 
-    public boolean rotate(boolean clockwise) {
-        if (currentPiece.getShape() == 0 || currentPiece.getShape() == 5) {
-            return true;
-        }
-      	for (int i = 0; i < 4; i++) {
-	    		int x = currentX + (clockwise ? currentPiece.getYById(i) : -currentPiece.getYById(i));
-	    		int y = currentY + (clockwise ? -currentPiece.getXById(i) : currentPiece.getXById(i));
+	public boolean rotateClockwise() {
+		boolean isok = rotate(true);
+		setShadow();
+		return isok;
+	}
 
-	    		if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
-	    			return false;
-	    		}
+	public boolean rotateAntiClockwise() {
+		boolean isok = rotate(false);
+		setShadow();
+		return isok;
+	}
 
-	    		if (board[y][x] != 0) {
-	    			return false;
-	    		}
-	    	}
-      	currentPiece.rotate(clockwise);
-
-      	return true;
-    }
-
-    public boolean rotateClockwise() {
-    	boolean isok = rotate(true);
-    	setShadow();
-    	return isok;
-    }
-
-    public boolean rotateAntiClockwise() {
-    	boolean isok = rotate(false);
-    	setShadow();
-    	return isok;
-    }
-
-
-    public void register() {
+	public void register() {
 		int shape = currentPiece.getShape();
 		int x, y;
 
-    	for (int i = 0; i < 4; i++) {
-    		x = currentX + currentPiece.getXById(i);
-    		y = currentY + currentPiece.getYById(i);
-    		if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
-    			continue;
-    		}
-    		board[y][x] = shape;
-    	}
-    }
+		for (int i = 0; i < 4; i++) {
+			x = currentX + currentPiece.getXById(i);
+			y = currentY + currentPiece.getYById(i);
+			if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
+				continue;
+			}
+			board[y][x] = shape;
+		}
+	}
 
 	public static void register(int[][] b, Piece p, int curX, int curY) {
 		int shape = p.getShape();
@@ -199,8 +195,21 @@ public class Board extends JPanel {
 				} else {
 					board[y][x] = 0;
 				}
- 			}
+			}
 		}
+
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				for (int i = 0; i < 4; i++) {
+					int curX = currentX + currentPiece.getXById(i);
+					int curY = currentY + currentPiece.getYById(i);
+					if (board[curY][curX] != 0) {
+						currentY++;
+					}
+				}
+			}
+		}
+
 		setShadow();
 
 		return gameover;
@@ -218,56 +227,55 @@ public class Board extends JPanel {
 		}
 	}
 
-    public void clearBoard() {
-    	for (int y = 0; y < NUM_ROWS; y++) {
-    		for (int x = 0; x < NUM_COLS; x++) {
-    			board[y][x] = 0;
-    		}
-    	}
-    }
+	public void clearBoard() {
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				board[y][x] = 0;
+			}
+		}
+	}
 
+	public int removeLines() {
+		int numLinesRemoved = 0;
 
-    public int removeLines() {
-    	int numLinesRemoved = 0;
+		for (int y = NUM_ROWS - 1; y >= 0; y--) {
+			boolean isFilled = true;
+			for (int x = 0; x < NUM_COLS; x++) {
+				if (board[y][x] == 0) {
+					isFilled = false;
+					break;
+				}
+			}
+			if (isFilled) {
+				for (int i = y; i < NUM_ROWS - 1; i++) {
+					for (int x = 0; x < NUM_COLS; x++) {
+						board[i][x] = board[i + 1][x];
+					}
+				}
+				numLinesRemoved++;
+			}
+		}
 
-    	for (int y =  NUM_ROWS - 1; y >= 0; y--) {
-    		boolean isFilled = true;
-    		for (int x = 0; x < NUM_COLS; x++) {
-    			if (board[y][x] == 0) {
-    				isFilled = false;
-    				break;
-    			}
-    		}
-    		if (isFilled) {
-    			for (int i = y; i < NUM_ROWS - 1; i++) {
-    				for (int x = 0; x < NUM_COLS; x++) {
-    					board[i][x] = board[i + 1][x];
-    				}
-    			}
-	    		numLinesRemoved++;
-    		}
-    	}
+		return numLinesRemoved;
+	}
 
-    	return numLinesRemoved;
-    }
+	public boolean isCollided(int nextX, int nextY) {
+		int x, y;
 
-    public boolean isCollided(int nextX, int nextY) {
-    	int x, y;
+		for (int i = 0; i < 4; i++) {
+			x = nextX + currentPiece.getXById(i);
+			y = nextY + currentPiece.getYById(i);
+			if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
+				continue;
+			}
 
-    	for (int i = 0; i < 4; i++) {
-    		x = nextX + currentPiece.getXById(i);
-    		y = nextY + currentPiece.getYById(i);
-    		if (x < 0 || NUM_COLS <= x || y < 0 || NUM_ROWS <= y) {
-    			continue;
-    		}
+			if (board[y][x] != 0) {
+				return true;
+			}
+		}
 
-    		if (board[y][x] != 0) {
-    			return true;
-    		}
-    	}
-
-    	return false;
-    }
+		return false;
+	}
 
 	public static void flip(int[][] b) {
 		for (int y = 0; y < NUM_ROWS / 2; y++) {
@@ -298,39 +306,39 @@ public class Board extends JPanel {
 		return res;
 	}
 
-    public boolean setNewPiece() {
-    	boolean gameover = false;
-    	currentPiece.setRandomShape();
-    	currentX = NUM_COLS / 2 - 1;
-    	currentY = NUM_ROWS - 1 - currentPiece.getMaxY() + 2;
-    	for (int i = 0; i < 2; i++) {
-    		if (isCollided(currentX, currentY - 1)) {
-    			gameover = true;
-    			break;
-    		} else {
-    			currentY--;
-    		}
-    	}
-    	setShadow();
-    	return gameover;
-    }
+	public boolean setNewPiece() {
+		boolean gameover = false;
+		currentPiece.setRandomShape();
+		currentX = NUM_COLS / 2 - 1;
+		currentY = NUM_ROWS - 1 - currentPiece.getMaxY() + 2;
+		for (int i = 0; i < 2; i++) {
+			if (isCollided(currentX, currentY - 1)) {
+				gameover = true;
+				break;
+			} else {
+				currentY--;
+			}
+		}
+		setShadow();
+		return gameover;
+	}
 
-    public boolean setNewPiece(int shape) {
-    	boolean gameover = false;
-    	currentPiece.setShape(shape);
-    	currentX = NUM_COLS / 2 - 1;
-    	currentY = NUM_ROWS - 1 - currentPiece.getMaxY() + 2;
-    	for (int i = 0; i < 2; i++) {
-    		if (isCollided(currentX, currentY - 1)) {
-    			gameover = true;
-    			break;
-    		} else {
-    			currentY--;
-    		}
-    	}
-    	setShadow();
-    	return gameover;
-    }
+	public boolean setNewPiece(int shape) {
+		boolean gameover = false;
+		currentPiece.setShape(shape);
+		currentX = NUM_COLS / 2 - 1;
+		currentY = NUM_ROWS - 1 - currentPiece.getMaxY() + 2;
+		for (int i = 0; i < 2; i++) {
+			if (isCollided(currentX, currentY - 1)) {
+				gameover = true;
+				break;
+			} else {
+				currentY--;
+			}
+		}
+		setShadow();
+		return gameover;
+	}
 
 	public boolean setNewPiece(int shape, int numRotation) {
 		boolean gameover = false;
@@ -368,9 +376,9 @@ public class Board extends JPanel {
 		return currentPiece.getShape();
 	}
 
-    public void setCurrentPieceShape(int shape) {
-    	currentPiece.setShape(shape);
-    }
+	public void setCurrentPieceShape(int shape) {
+		currentPiece.setShape(shape);
+	}
 
 	public int[][] createCopy() {
 		int[][] b = new int[NUM_ROWS][NUM_COLS];
@@ -382,60 +390,57 @@ public class Board extends JPanel {
 		return b;
 	}
 
+	@Override
+	public void paintComponent(Graphics g0) {
+		Graphics2D g = (Graphics2D) g0;
+		super.paintComponent(g);
 
-    @Override
-    public void paintComponent(Graphics g0) {
-        Graphics2D g = (Graphics2D)g0;
-        super.paintComponent(g);
+		for (int y = 0; y < NUM_ROWS; y++) {
+			for (int x = 0; x < NUM_COLS; x++) {
+				int shape = board[NUM_ROWS - y - 1][x];
+				if (shape != 0) {
+					drawBlock(g, x * BLOCK_SIZE, y * BLOCK_SIZE, Piece.getColorByShape(shape));
+				}
+			}
+		}
 
-        for (int y = 0; y < NUM_ROWS; y++) {
-	        for (int x = 0; x < NUM_COLS; x++) {
-        		int shape = board[NUM_ROWS - y - 1][x];
-        		if (shape != 0) {
-                    drawBlock(g, x * BLOCK_SIZE, y * BLOCK_SIZE, Piece.getColorByShape(shape));
-	             }
-        	}
-        }
+		if (currentPiece.getShape() != 0) {
+			for (int i = 0; i < 4; i++) {
+				int x = currentX + currentPiece.getXById(i);
+				int y = currentY + currentPiece.getYById(i);
 
-        if (currentPiece.getShape() != 0) {
-        	for (int i = 0; i < 4; i++) {
-        		int x = currentX + currentPiece.getXById(i);
-        		int y = currentY + currentPiece.getYById(i);
+				drawBlock(g, x * BLOCK_SIZE, (NUM_ROWS - y - 1) * BLOCK_SIZE, currentPiece.getColor());
+			}
+			for (int i = 0; i < 4; i++) {
+				int x = shadowX + currentPiece.getXById(i);
+				int y = shadowY + currentPiece.getYById(i);
 
-        		drawBlock(g, x * BLOCK_SIZE,
-        				(NUM_ROWS - y - 1) * BLOCK_SIZE, currentPiece.getColor());
-        	}
-        	for (int i = 0; i < 4; i++) {
-        		int x = shadowX + currentPiece.getXById(i);
-        		int y = shadowY + currentPiece.getYById(i);
+				drawShadowBlock(g, x * BLOCK_SIZE, (NUM_ROWS - y - 1) * BLOCK_SIZE, currentPiece.getColor());
+			}
+		}
+	}
 
-        		drawShadowBlock(g, x * BLOCK_SIZE,
-        				(NUM_ROWS - y - 1) * BLOCK_SIZE, currentPiece.getColor());
-        	}
-        }
-    }
+	public void drawBlock(Graphics g, int x, int y, Color c) {
+		g.setColor(c);
+		g.fillRect(x + 1, y + 1, BLOCK_SIZE - 3, BLOCK_SIZE - 3);
 
-    public void drawBlock(Graphics g, int x, int y, Color c) {
-        g.setColor(c);
-        g.fillRect(x + 1, y + 1, BLOCK_SIZE - 3, BLOCK_SIZE - 3);
+		g.setColor(c.brighter());
+		g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
+		g.drawLine(x + 1, y + 1, x + 1, y + BLOCK_SIZE - 2);
+		g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
+		g.drawLine(x + 1, y + 1, x + BLOCK_SIZE - 2, y + 1);
+		g.setColor(c.darker());
+		g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+		g.drawLine(x + 1, y + BLOCK_SIZE - 2, x + BLOCK_SIZE - 2, y + BLOCK_SIZE - 2);
+		g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+		g.drawLine(x + BLOCK_SIZE - 2, y + 1, x + BLOCK_SIZE - 2, y + BLOCK_SIZE - 2);
+	}
 
-        g.setColor(c.brighter());
-        g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
-        g.drawLine(x + 1, y + 1, x + 1, y + BLOCK_SIZE - 2);
-        g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
-        g.drawLine(x + 1, y + 1, x + BLOCK_SIZE - 2, y + 1);
-        g.setColor(c.darker());
-        g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
-        g.drawLine(x + 1, y + BLOCK_SIZE - 2, x + BLOCK_SIZE - 2, y + BLOCK_SIZE - 2);
-        g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
-        g.drawLine(x + BLOCK_SIZE - 2, y + 1, x + BLOCK_SIZE - 2, y + BLOCK_SIZE - 2);
-    }
-
-    public void drawShadowBlock(Graphics g, int x, int y, Color c) {
-    	g.setColor(c);
-    	g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
-    	g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
-        g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
-        g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
-    }
+	public void drawShadowBlock(Graphics g, int x, int y, Color c) {
+		g.setColor(c);
+		g.drawLine(x, y, x, y + BLOCK_SIZE - 1);
+		g.drawLine(x, y, x + BLOCK_SIZE - 1, y);
+		g.drawLine(x, y + BLOCK_SIZE - 1, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+		g.drawLine(x + BLOCK_SIZE - 1, y, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+	}
 }
